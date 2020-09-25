@@ -18,13 +18,18 @@ public class SourceParser {
     public static void parse(File file, File export) throws Exception {
         if (!export.exists()) export.mkdirs();
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-//an instance of builder to parse the specified xml file
         DocumentBuilder db = dbf.newDocumentBuilder();
         Document doc = db.parse(file);
 
-        Node smses = doc.getElementsByTagName("smses").item(0);
-        NodeList childNodes = smses.getChildNodes();
-        if (childNodes == null) System.out.println("OUCH");
+        Node allMessages = doc.getElementsByTagName("smses").item(0);
+        if (allMessages == null) {
+            throw new IllegalArgumentException("No Messages Found");
+        }
+
+        NodeList childNodes = allMessages.getChildNodes();
+        if (childNodes.getLength() == 0) {
+            throw new IllegalArgumentException("No Messages Found");
+        }
         for (int i = 0; i < childNodes.getLength(); i++) {
             Node item = childNodes.item(i);
             if (item.getAttributes() == null) continue;
@@ -33,7 +38,6 @@ public class SourceParser {
             File workingFolder = new File(export, who);
             if (!workingFolder.exists()) workingFolder.mkdir();
             if (item.getNodeName().equals("sms")) {
-
                 writeMessage(who, item.getAttributes().getNamedItem("body").getTextContent(), workingFolder, Type.fromID(item.getAttributes().getNamedItem("type").getTextContent()));
             } else if (item.getNodeName().equals("mms")) {
 
@@ -52,11 +56,13 @@ public class SourceParser {
                         String base64 = item1.getAttributes().getNamedItem("data").getTextContent();
                         byte[] decodedBytes = Base64.getDecoder().decode(base64);
                         String imageFile;
-                        if (item1.getAttributes().getNamedItem("ct").getTextContent().equalsIgnoreCase("image/jpeg")) {
+                        String ct = item1.getAttributes().getNamedItem("ct").getTextContent();
+                        if (ct.equalsIgnoreCase("image/jpeg")) {
                             imageFile = base64.hashCode() + ".jpg";
-                        } else if (item1.getAttributes().getNamedItem("ct").getTextContent().equalsIgnoreCase("image/png")) {
+                        } else if (ct.equalsIgnoreCase("image/png")) {
                             imageFile = base64.hashCode() + ".png";
                         } else {
+                            Main.LOGGER.warn(String.format("No handler is available for the type: %s", ct));
                             continue;
                         }
                         File imageFolder = new File(workingFolder, "images");

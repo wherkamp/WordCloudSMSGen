@@ -30,7 +30,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>false</addClasspath>
-                            <mainClass>me.kingtux.dwc.Main</mainClass>
+                            <mainClass>me.kingtux.wcsmsg.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
