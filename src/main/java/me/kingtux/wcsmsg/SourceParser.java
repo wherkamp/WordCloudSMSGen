@@ -34,7 +34,7 @@ public class SourceParser {
             if (!workingFolder.exists()) workingFolder.mkdir();
             if (item.getNodeName().equals("sms")) {
 
-                writeMessage(who, item.getAttributes().getNamedItem("body").getTextContent(), workingFolder);
+                writeMessage(who, item.getAttributes().getNamedItem("body").getTextContent(), workingFolder, Type.fromID(item.getAttributes().getNamedItem("type").getTextContent()));
             } else if (item.getNodeName().equals("mms")) {
 
                 NodeList mmsNodes = null;
@@ -64,7 +64,8 @@ public class SourceParser {
                         File imageFileFile = new File(imageFolder, imageFile);
                         FileUtils.writeByteArrayToFile(imageFileFile, decodedBytes);
                     } else if (item1.getAttributes().getNamedItem("ct").getTextContent().equalsIgnoreCase("text/plain")) {
-                        writeMessage(who, item1.getAttributes().getNamedItem("text").getTextContent(), workingFolder);
+                        Node msg_box = item.getAttributes().getNamedItem("msg_box");
+                        writeMessage(who, item1.getAttributes().getNamedItem("text").getTextContent(), workingFolder, Type.fromID(msg_box.getTextContent()));
 
                     }
                 }
@@ -72,15 +73,29 @@ public class SourceParser {
         }
     }
 
-    private static void writeMessage(String who, String message, File workingFolder) {
+    private static void writeMessage(String who, String message, File workingFolder, Type type) {
         File output = new File(workingFolder, "texts.txt");
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(output, true));
             bw.write(message);
             bw.newLine();
             bw.close();
+            if (type == Type.SENT) {
+                File outputTwo = new File(workingFolder, "texts-sent.txt");
+                BufferedWriter bwTwo = new BufferedWriter(new FileWriter(outputTwo, true));
+                bwTwo.write(message);
+                bwTwo.newLine();
+                bwTwo.close();
+            } else if (type == Type.RECEIVED) {
+                File outputTwo = new File(workingFolder, "texts-received.txt");
+                BufferedWriter bwTwo = new BufferedWriter(new FileWriter(outputTwo, true));
+                bwTwo.write(message);
+                bwTwo.newLine();
+                bwTwo.close();
+            }
         } catch (IOException e1) {
             e1.printStackTrace();
         }
+
     }
 }

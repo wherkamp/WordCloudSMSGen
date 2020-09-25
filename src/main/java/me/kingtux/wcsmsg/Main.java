@@ -13,6 +13,7 @@ public class Main {
             System.out.println("Please Provide a file");
             return;
         }
+
         File export = new File("export");
         SourceParser.parse(file, export);
         WordCloudGen.generateWordClouds(export);
