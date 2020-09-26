@@ -3,3 +3,4 @@ target/
 sms.xml
 .idea/
 *.iml
+ignore-words.txt

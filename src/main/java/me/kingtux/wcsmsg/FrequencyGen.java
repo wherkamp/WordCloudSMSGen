@@ -2,6 +2,11 @@ package me.kingtux.wcsmsg;
 
 import com.kennycason.kumo.WordFrequency;
 import com.kennycason.kumo.nlp.FrequencyAnalyzer;
+import com.kennycason.kumo.nlp.filter.UrlFilter;
+import com.kennycason.kumo.nlp.normalize.BubbleTextNormalizer;
+import com.kennycason.kumo.nlp.normalize.CharacterStrippingNormalizer;
+import com.kennycason.kumo.nlp.normalize.LowerCaseNormalizer;
+import com.kennycason.kumo.nlp.normalize.TrimToEmptyNormalizer;
 import com.opencsv.CSVWriter;
 
 import java.io.File;
@@ -16,6 +21,10 @@ public class FrequencyGen {
     static {
         //frequencyAnalyzer.setMinWordLength(1);
         frequencyAnalyzer.setWordFrequenciesToReturn(Integer.MAX_VALUE);
+        frequencyAnalyzer.addNormalizer(new CharacterStrippingNormalizer());
+        frequencyAnalyzer.addNormalizer(new LowerCaseNormalizer());
+        frequencyAnalyzer.addNormalizer(new TrimToEmptyNormalizer());
+        //frequencyAnalyzer.addFilter(new UrlFilter());
     }
 
     public static void generate(File exports) {
@@ -38,6 +47,7 @@ public class FrequencyGen {
     }
 
     public static void generateFrequencyReport(File file, File export) {
+
         List<WordFrequency> wordFrequencies = null;
         try {
             wordFrequencies = frequencyAnalyzer.load(file);
@@ -47,7 +57,7 @@ public class FrequencyGen {
         if (wordFrequencies == null) return;
         try (CSVWriter writer = new CSVWriter(new FileWriter(export))) {
             for (WordFrequency wordFrequency : wordFrequencies) {
-               writer.writeNext(new String[]{wordFrequency.getWord(), String.valueOf(wordFrequency.getFrequency())});
+                writer.writeNext(new String[]{wordFrequency.getWord(), String.valueOf(wordFrequency.getFrequency())});
             }
         } catch (IOException e) {
             e.printStackTrace();
