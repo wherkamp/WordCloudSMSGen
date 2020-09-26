@@ -21,6 +21,7 @@ public class Main {
 
         File export = new File("export");
         SourceParser.parse(file, export);
+        FrequencyGen.generate(export);
         WordCloudGen.generateWordClouds(export);
     }
 }

@@ -11,7 +11,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 
 public class SourceParser {
 
@@ -80,28 +82,56 @@ public class SourceParser {
     }
 
     private static void writeMessage(String who, String message, File workingFolder, Type type) {
-        File output = new File(workingFolder, "texts.txt");
+        String[] content = cleanupText(message.split(" "));
         try {
-            BufferedWriter bw = new BufferedWriter(new FileWriter(output, true));
-            bw.write(message);
-            bw.newLine();
-            bw.close();
             if (type == Type.SENT) {
-                File outputTwo = new File(workingFolder, "texts-sent.txt");
-                BufferedWriter bwTwo = new BufferedWriter(new FileWriter(outputTwo, true));
-                bwTwo.write(message);
-                bwTwo.newLine();
-                bwTwo.close();
+                File texts = new File(workingFolder, "texts-sent.txt");
+                File textsSplit = new File(workingFolder, "texts-sent.split.txt");
+                appendText(texts, message);
+                appendText(textsSplit, content);
             } else if (type == Type.RECEIVED) {
-                File outputTwo = new File(workingFolder, "texts-received.txt");
-                BufferedWriter bwTwo = new BufferedWriter(new FileWriter(outputTwo, true));
-                bwTwo.write(message);
-                bwTwo.newLine();
-                bwTwo.close();
+                File texts = new File(workingFolder, "texts-received.txt");
+                File textsSplit = new File(workingFolder, "texts-sent.received.txt");
+                appendText(texts, message);
+                appendText(textsSplit, content);
             }
+            File texts = new File(workingFolder, "texts.txt");
+            File textsSplit = new File(workingFolder, "texts.split.txt");
+
+            appendText(texts, message);
+            appendText(textsSplit, content);
+
         } catch (IOException e1) {
             e1.printStackTrace();
         }
 
+    }
+
+    private static String[] cleanupText(String[] s) {
+        List<String> stringList = new ArrayList<>();
+        for (String s1 : s) {
+            String value = s1.toLowerCase();
+            //TODO check for banned words
+
+            stringList.add(value);
+        }
+        return stringList.toArray(String[]::new);
+    }
+
+    public static void appendText(File file, String[] content) throws IOException {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, true))) {
+            for (String s : content) {
+                bw.newLine();
+                bw.write(s);
+            }
+            bw.newLine();
+        }
+    }
+
+    public static void appendText(File file, String content) throws IOException {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, true))) {
+            bw.write(content);
+            bw.newLine();
+        }
     }
 }

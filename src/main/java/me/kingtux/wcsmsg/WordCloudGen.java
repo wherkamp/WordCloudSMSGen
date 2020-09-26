@@ -36,7 +36,7 @@ public class WordCloudGen {
         //frequencyAnalyzer.setFilter(new SimpleFilter(discordCloud.getGuildBannedWords(message.getGuild())));
         List<WordFrequency> wordFrequencies = null;
         try {
-            wordFrequencies = frequencyAnalyzer.load(new File(export, "texts.txt"));
+            wordFrequencies = frequencyAnalyzer.load(new File(export, "texts.split.txt"));
         } catch (IOException e) {
             return;
         }
